@@ -187,6 +187,7 @@ class BaseHandler(tornado.web.RequestHandler, TemplateRendering):
         return content
 
     def get_current_user(self):
+        # return 'jqzhang'
         user_id = self.get_secure_cookie("user")
         if not user_id: return None
         return user_id
@@ -214,8 +215,9 @@ class HomeHandler(BaseHandler):
         else:
             ksso_url = options.ksso_url
             lvs_url = options.lvs_url
-            ret = "%slogin?forward=%slogin" % (ksso_url,lvs_url)
-            self.redirect(ret)
+            #ret = "%slogin?forward=%slogin" % (ksso_url,lvs_url)
+            #self.redirect(ret)
+            self.render2('login.html')
 
 class LoginOut(BaseHandler):
     def get(self):
@@ -225,7 +227,8 @@ class LoginOut(BaseHandler):
         ksso_url = options.ksso_url
         lvs_url = options.lvs_url
         self.clear_cookie("user")
-        ret = "%slogout?forward=%s" % (ksso_url,lvs_url)
+        # ret = "%slogout?forward=%s" % (ksso_url,lvs_url)
+        ret = "/login/"
         self.redirect(ret)
         
 class Login(BaseHandler):
@@ -233,14 +236,28 @@ class Login(BaseHandler):
         '''
         user login
         '''
-        ticket = self.get_argument("t", None)
-        lvs_url = options.lvs_url
-        ksso_url = options.ksso_url
-        _request = urllib2.Request("%sverify?t=%s" % (ksso_url,ticket))
-        _request.add_header("referer",lvs_url)
-        res = urllib2.urlopen(_request)
-        user = res.read()
-        if user == 'False':
+        # ticket = self.get_argument("t", None)
+        # lvs_url = options.lvs_url
+        # ksso_url = options.ksso_url
+        # _request = urllib2.Request("%sverify?t=%s" % (ksso_url,ticket))
+        # _request.add_header("referer",lvs_url)
+        # res = urllib2.urlopen(_request)
+        # user = res.read()
+        # user='jqzhang'
+        # user=False
+
+        user=self.get_current_user()
+
+
+
+
+
+
+
+
+        if user==False or user == 'False':
+            self.render2('login.html')
+            return
             raise tornado.web.HTTPError(500, 'Ksso Retrun False')
         if user:
             handler = Model('Account')
@@ -252,8 +269,69 @@ class Login(BaseHandler):
                 time_now = timestamptodate(time.time())
                 user_data = {"username":user,"is_manager":False,"is_super_manager":False,"login_time":time_now,"register_time":time_now}
                 handler.InsertAccount(user_data)
-        self.set_secure_cookie("user", user,expires_days=options.cookies_expires)
-        self.redirect('/charts/')
+            self.redirect('/charts/')
+            self.set_secure_cookie("user", user,expires_days=options.cookies_expires)
+        else:
+            self.render2('login.html')
+
+
+
+    def post(self, *args, **kwargs):
+        if self.request.body!=None and self.request.body.find('username')!=-1 and self.request.body.find('password')!=-1:
+            import urllib
+            import urlparse
+            import simpleldap
+            # print urlparse.parse_qs(self.request.body)
+            d={}
+            for item in self.request.body.split('&'):
+                kv=item.split('=')
+                d[kv[0]]=urllib.unquote( kv[1])
+
+            import ldap
+            SERVER = "ldap://ldap.server.com"
+            BASE = u"dc=server,dc=com"
+            # def login(name,password):
+            #     con = ldap.initialize(SERVER)
+            #     try:
+            #         con.set_option(ldap.OPT_REFERRALS,0)
+            #         con.protocol_version = 3
+            #         result = con.simple_bind_s(name,password)
+            #         if result and result[0]==97:
+            #             return True
+            #     except Exception as er:
+            #         print(er)
+            #         return False
+            #     finally:
+            #         con.unbind()
+            #     return False
+
+            def login(name,password):
+                import urllib2
+                import urllib
+                ret=urllib2.urlopen('http://www.server.com/index.php/open/login',urllib.urlencode( {'user_name':name,'password':password})).read()
+                if ret=='1':
+                    return True
+                else:
+                    return  False
+
+            if login(d['username'],d['password']):
+                self.set_secure_cookie("user", d['username'],expires_days=options.cookies_expires)
+                self.redirect('/charts/')
+            else:
+                self.render2('login.html')
+
+        else:
+
+            self.render2('login.html')
+            return
+
+
+
+
+
+
+
+
         
 class ChartsHandler(BaseHandler):
     @tornado.web.authenticated
@@ -317,6 +395,7 @@ class LbStatusTable(BaseHandler):
             if agent['node']:
                 vipcount = len(agent['node'])
             else:
+                continue
                 vipcount = 0
             time = datetime.datetime.fromtimestamp(agent['time'])
             dict = {"id":i,"ipadd":agent_ip,"vipcount":vipcount,"time":time}

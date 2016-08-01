@@ -54,7 +54,7 @@ class Application(tornado.web.Application):
 
         web_path = [
             (r"/", control.HomeHandler),
-            (r"/login", control.Login),
+            (r"/login/", control.Login),
             (r"/loginout", control.LoginOut),
             (r"/charts/", control.ChartsHandler),
             (r"/status/", control.Status),
