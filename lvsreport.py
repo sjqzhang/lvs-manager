@@ -96,11 +96,11 @@ class lvsreport():
         if len(in_traffic_avg_dict['result']) != 0:
             cluster_traffic_sum['in_traffic_avg'] = in_traffic_avg_dict['result'][0]['avg']
         else:
-            cluster_traffic_sum['in_traffic_avg'] = None
+            cluster_traffic_sum['in_traffic_avg'] = 0
         if len(out_traffic_avg_dict['result']) != 0:
             cluster_traffic_sum['out_traffic_avg'] = out_traffic_avg_dict['result'][0]['avg']
         else:
-            cluster_traffic_sum['out_traffic_avg'] = None
+            cluster_traffic_sum['out_traffic_avg'] = 0
         return cluster_traffic_sum
 
 
@@ -131,11 +131,11 @@ class lvsreport():
         if len(in_traffic_avg_dict['result']) != 0:
             vip_traffic['in_traffic_avg'] = in_traffic_avg_dict['result'][0]['avg']
         else:
-            vip_traffic['in_traffic_avg'] = None
+            vip_traffic['in_traffic_avg'] = 0
         if len(out_traffic_avg_dict['result']) != 0:
             vip_traffic['out_traffic_avg'] = out_traffic_avg_dict['result'][0]['avg']
         else:
-            vip_traffic['out_traffic_avg'] = None
+            vip_traffic['out_traffic_avg'] = 0
         return vip_traffic
 
     def mongo_vip_traffic(self,id):
