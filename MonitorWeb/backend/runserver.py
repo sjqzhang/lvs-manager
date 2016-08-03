@@ -75,6 +75,7 @@ class Application(tornado.web.Application):
             (r"/lvsmanager_deploy_add/", control.lvsManagerDeployAdd),
             (r"/lvsmanager_deploy_del/", control.lvsManagerDeployDel),
             (r"/lvsmanager_deploy_edit/", control.lvsManagerDeployEdit),
+            (r"/lvsmanager_get_vip/", control.lvsManagerGetVip),
             (r"/lvsmanager_deploy_offline/", control.lvsManagerDeployOffline),
             (r"/lvsmanager_deploy_online/", control.lvsManagerDeployOnline),
             (r"/lvsmanager_deploy_get_rs_list/", control.lvsManagerDeployGetRsList),

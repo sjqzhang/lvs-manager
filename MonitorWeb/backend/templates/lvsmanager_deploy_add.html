@@ -11,6 +11,22 @@
   	</div>
   </div>
 
+
+              <div id="tpl_param" style="display:none;">
+              <div style="border: 1px dashed #ccc;">
+                  <span><input type="text"
+                      onblur="if(this.value==''){this.value='VIP'; this.style.color='#ccc';};"
+                      onfocus="if(this.value=='VIP'){this.value='';} this.style.color='#666';"
+                      value="VIP" style="width: 150px;" name="key"
+                      style="color: rgb(204, 204, 204);"></span>:<span><input
+                      type="text"
+                      onblur="if(this.value==''){this.value='PORT'; this.style.color='#ccc';}"
+                      onfocus="if(this.value=='PORT'){this.value=''} this.style.color='#666';"
+                      value="PORT" style="width: 115px;" title="{desc}" name="val"></span> <span
+                      class="del">删除</span>
+              </div>
+          </div>
+
   <div class='row'>
   	<div class='col-md-12' id='lvsmanager_deploy_add_body'>
   		<h4>VIP</h4>
@@ -25,7 +41,19 @@
 		    <div class="control-group">
 		      <label class="control-label" for="descript">业务</label>
 		      <div class="controls">
-		        <td><input id="descript" class="lvs_manager_deploy_add_vip_input" type="text" name='descript' placeholder="业务名"></td>
+		        <!--<td><input id="descript" class="lvs_manager_deploy_add_vip_input" type="text" name='descript' placeholder="业务名"></td>-->
+
+                  <select class="chosen-select" id="descript" name="descript" data-placeholder="Choose a State...">
+                  {% for bu in business %}
+
+				      <option value="{{ bu.id }}">{{ bu.name }}</option>
+
+				  {% endfor %}
+																<!--<option value="">  </option>-->
+																<!--<option value="AL">Alabama</option>-->
+																<!--<option value="AK">Alaska</option>-->
+                    </select>
+
 		      </div>
 		    </div>
 		    <div class="control-group">
@@ -43,8 +71,40 @@
 		    <div class="control-group">
 		      <label class="control-label" for="vip_group">VIP组</label>
 		      <div class="controls">
-		        <td><input style="width: 310px;" id="vip_group" class="lvs_manager_deploy_add_vip_input" type="text" name='vip' placeholder="VIP地址"><span class="help-block">VIP组列表,以逗号分割.例如:1.1.1.1:80,2.2.2.2:80</span></td>
-		      </div>
+		        <!--<td><input style="width: 310px;" id="vip_group" class="lvs_manager_deploy_add_vip_input" type="text" name='vip' placeholder="VIP地址"><span class="help-block">VIP组列表,以逗号分割.例如:1.1.1.1:80,2.2.2.2:80</span></td>-->
+		                        <div class="right" id="left_part_param" style="width:350px;">
+
+                    <div style="border: 1px dashed #ccc;">
+
+                            <div style="border: 1px dashed #ccc;">
+                                              <span><input type="text"
+                                                  onblur="if(this.value==''){this.value='VIP'; this.style.color='#ccc';};"
+                                                  onfocus="if(this.value=='VIP'){this.value='';} this.style.color='#666';"
+                                                  value="VIP" style="width: 150px;" name="key"
+                                                  style="color: rgb(204, 204, 204);"></span>:<span><input
+                                                  type="text"
+                                                  onblur="if(this.value==''){this.value='PORT'; this.style.color='#ccc';}"
+                                                  onfocus="if(this.value=='PORT'){this.value=''} this.style.color='#666';"
+                                                  value="PORT" style="width: 115px;" title="{desc}" name="val"></span> <span
+                                                  class="del">删除</span>
+                                          </div>
+
+                    </div>
+
+
+
+
+
+
+
+
+                </div>
+
+                       <div>
+                          <input type="button" value="增加" id="add">
+                      </div>
+
+              </div>
 		    </div>
 		    <div class="control-group">
 		      <label class="control-label" for="protocol">协议</label>
@@ -224,6 +284,30 @@
 
 </div>
 <script type="text/javascript">
+
+
+
+    function buildVip(container) {
+        var p = [];
+        $(container).find('div').each(function() {
+            debugger;
+                var key = $('input[name=key]', this).val();
+                var val = $('input[name=val]', this).val();
+
+                if (key && key != 'VIP') {
+                        if (val == 'PORT') {
+                                val = '';
+                        }
+//                        p.push('"' + key + '":"' + encodeURIComponent(val.replace(/\"/ig,'\\"')) + '"');
+                        p.push('' + key + ':' + encodeURIComponent(val.replace(/\"/ig,'\\"')) + '');
+
+
+                }
+        });
+        return  p.join(',') ;
+}
+
+
 	var rs_list = []
 	//onselect monitor_type
 	$("#monitor_type").change(function() {
@@ -280,6 +364,17 @@
 		$( "#dialog-form" ).dialog( "open" );
 	});
 
+     $('#add').click(function() {
+                $('#left_part_param').append($('#tpl_param').html());
+                $('.del').click(function() {
+                        $(this).parent().remove();
+                })//end click;
+        });//end click;
+
+            $('.del').click(function() {
+                        $(this).parent().remove();
+         })//end click;
+
 	function rs_table() {
 		var html = ''
 		for (rs in rs_list) {
@@ -304,8 +399,11 @@
 	$("#lvs_deploy_add_submit").click(function() {
 		var _rs_list = []
 		post_data = new Object() ;
+         vipgrouop= buildVip('#left_part_param')
+        post_data['vip_group']=vipgrouop
 		post_data['cluster_id'] = "{{ cluster }}"
 		$(".lvs_manager_deploy_add_vip_input").each(function() {
+            debugger;
 			var key = $(this).attr('id') ;
 			var value = $(this).val() ;
 			post_data[key] = value ;

@@ -127,6 +127,16 @@ class saltstackwork():
             else:
                 result_list.append({"id":i,"result":False})
         return result_list
+
+
+
+def get_business(cluster=''):
+    return [{'id':'test','name':'test'},{'id':'hello','name':'hello'}]
+
+def get_vip_list(vip_group=''):
+    groups=vip_group.split(',')
+    return  map(lambda x:{ 'ip': x.split(':')[0],'port':x.split(':')[1] },groups)
+
         
 class TemplateRendering():
 
@@ -308,7 +318,7 @@ class Login(BaseHandler):
             def login(name,password):
                 import urllib2
                 import urllib
-                ret=urllib2.urlopen('http://www.server.com/index.php/open/login',urllib.urlencode( {'user_name':name,'password':password})).read()
+                ret=urllib2.urlopen('http://zaccount.meizu.com/index.php/open/login',urllib.urlencode( {'user_name':name,'password':password})).read()
                 if ret=='1':
                     return True
                 else:
@@ -615,7 +625,15 @@ class lvsManagerDeployAdd(BaseHandler):
         show lvsmanager_config_add.html
         '''
         id = self.get_argument("id",None)
-        self.render2('lvsmanager_deploy_add.html',cluster=id)
+
+
+        business=get_business()
+
+
+
+
+
+        self.render2('lvsmanager_deploy_add.html',cluster=id,business=business)
 
     def post(self):
         '''
@@ -668,6 +686,20 @@ class lvsManagerDeployOnline(BaseHandler):
         handler = Model('LvsManagerConfig')
         handler.UpdateLvsManagerConfigVipInstanceToOnline(id)
         self.write('ok')
+
+class lvsManagerGetVip(BaseHandler):
+    def post(self):
+        '''
+        Remove vip_instance
+        '''
+        import json
+        print(self.request.body)
+
+        ip=self.get_argument('ip')
+        ips=['123','456','789']
+        ips=filter(lambda x:ip in x,ips)
+
+        self.write(json.dumps(ips))
                 
 class lvsManagerDeployEdit(BaseHandler):
     @tornado.web.authenticated
@@ -685,7 +717,9 @@ class lvsManagerDeployEdit(BaseHandler):
         for index,rs in enumerate(vipinstanceinfo['rs']):
             rs['index'] = index
             rs['port'] = ','.join(rs['port'])
-        self.render2('lvsmanager_deploy_edit.html',vipinstance = vipinstanceinfo)
+        business=get_business()
+
+        self.render2('lvsmanager_deploy_edit.html',vipinstance = vipinstanceinfo,vipgrouplist=vipgroup,business=business)
 
     def post(self):
         '''
