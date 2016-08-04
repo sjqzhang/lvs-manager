@@ -130,6 +130,8 @@ class saltstackwork():
 
 
 
+API_URL="http://10.3.143.21:443/index/"
+
 def get_business(cluster=''):
     '''
 
@@ -137,7 +139,7 @@ def get_business(cluster=''):
     :return: [{'id':'test','name':'test'},{'id':'hello','name':'hello'}]
     '''
     import requests
-    return requests.get('http://10.3.143.21:443/index/get_business').json()
+    return requests.get(API_URL+'get_business').json()
 
 def get_vip_by_bu(business=''):
     '''
@@ -149,7 +151,7 @@ def get_vip_by_bu(business=''):
     :return:
     '''
     import requests
-    return requests.post('http://10.3.143.21:443/index/get_vip_by_bu',{'business':business}).json()
+    return requests.post(API_URL+'get_vip_by_bu',{'business':business}).json()
 
 
 def get_realip_by_bu(business=''):
@@ -158,9 +160,17 @@ def get_realip_by_bu(business=''):
     :return: ['ip1','ip2']
     '''
     import requests
-    return requests.post('http://10.3.143.21:443/index/get_realip_by_bu',{'business':business}).json()
+    return requests.post(API_URL+'get_realip_by_bu',{'business':business}).json()
 
 
+def login(name,password):
+    import urllib2
+    import urllib
+    ret=urllib2.urlopen(API_URL+'login',urllib.urlencode( {'user_name':name,'password':password})).read()
+    if ret=='1':
+        return True
+    else:
+        return  False
         
 class TemplateRendering():
 
@@ -339,14 +349,7 @@ class Login(BaseHandler):
             #         con.unbind()
             #     return False
 
-            def login(name,password):
-                import urllib2
-                import urllib
-                ret=urllib2.urlopen('http://10.3.143.21:443/index/login',urllib.urlencode( {'user_name':name,'password':password})).read()
-                if ret=='1':
-                    return True
-                else:
-                    return  False
+
 
             if login(d['username'],d['password']):
                 self.set_secure_cookie("user", d['username'],expires_days=options.cookies_expires)
