@@ -224,7 +224,7 @@
 <div id="dialog-form" title="新增RS配置">
   <form>
   <fieldset>
-    <div class="control-group">
+    <div class="control-group" id="manager_ip_div">
       <label class="control-label" for="manager_ip">管理IP</label>
       <div class="controls">
         <td><input id="manager_ip" type="text" name='manager_ip'><span class="help-block">用于登录管理的IP</span></td>
@@ -298,9 +298,9 @@
   <form>
   <fieldset>
   	<input id="edit_record_rs_num" type="text" class="hide">
-    <div class="control-group">
+    <div class="control-group" >
       <label class="control-label" for="manager_ip">管理IP</label>
-      <div class="controls">
+      <div class="controls" style="display: none;">
         <td><input id="edit_manager_ip" type="text" name='manager_ip'><span class="help-block">用于登录管理的IP</span></td>
       </div>
 	</div>
@@ -372,7 +372,11 @@
 <script type="text/javascript">
 
 
-$('input[name=key]').autocomplete({
+$('#descript').select2({ placeholder: "请选择相应业务"})
+
+
+function add_autocomplete(){
+    $('input[name=key]').autocomplete({
         source:function(query,process){
             var matchCount = this.options.items;//返回结果集最大数量
             $.post("/lvsmanager_get_vip/",{"ip":query,"matchCount":matchCount,'business':$('#descript').val()},function(respData){
@@ -389,6 +393,31 @@ $('input[name=key]').autocomplete({
             return {'data-value':item,'real-value':item};
         }
     });
+}
+
+function add_autocomplete2(){
+    $('#server_ip').autocomplete({
+        source:function(query,process){
+            var matchCount = this.options.items;//返回结果集最大数量
+            $.post("/lvsmanager_get_vip/",{"ip":query,"matchCount":matchCount,'business':$('#descript').val()},function(respData){
+               respData= $.parseJSON(respData);
+                return process(respData);
+            });
+        },
+        formatItem:function(item){
+            return item;
+            //return item["regionName"]+"("+item["regionNameEn"]+"，"+item["regionShortnameEn"]+") - "+item["regionCode"];
+        },
+        setValue:function(item){
+
+            return {'data-value':item,'real-value':item};
+        }
+    });
+}
+
+
+add_autocomplete()
+add_autocomplete2()
 
 
 function buildJsonPara(container) {
@@ -493,7 +522,8 @@ function buildVip(container) {
         "保存": function() {
         	monitor_new = new Object ;
         	monitor = new Object ;
-        	monitor_new['manager_ip'] = $("#manager_ip").val() ;
+
+        	monitor_new['manager_ip'] =$("#server_ip").val();// $("#manager_ip").val() ;
         	monitor_new['server_ip'] = $("#server_ip").val() ;
         	monitor_new['port'] = $("#rs_port").val() ;
         	monitor_new['weight'] = $("#weight").val() ;
@@ -527,6 +557,7 @@ function buildVip(container) {
 	        "保存修改": function() {
 	        	monitor_new = new Object ;
 	        	monitor = new Object ;
+                $("#manager_ip_div").hide();
 	        	monitor_new['manager_ip'] = $("#edit_manager_ip").val() ;
 	        	monitor_new['server_ip'] = $("#edit_server_ip").val() ;
 	        	monitor_new['port'] = $("#edit_rs_port").val() ;
@@ -554,6 +585,7 @@ function buildVip(container) {
 
 	$("#rs_add").click(function() {
 		$( "#dialog-form" ).dialog( "open" );
+        $("#manager_ip_div").hide();
 	});
 
 	function rs_table() {
@@ -591,6 +623,7 @@ function buildVip(container) {
                 $('.del').click(function() {
                         $(this).parent().remove();
                 })//end click;
+            add_autocomplete()
         });//end click;
         $('.del').click(function() {
                         $(this).parent().remove();

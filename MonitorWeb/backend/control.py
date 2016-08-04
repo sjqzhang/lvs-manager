@@ -131,11 +131,35 @@ class saltstackwork():
 
 
 def get_business(cluster=''):
-    return [{'id':'test','name':'test'},{'id':'hello','name':'hello'}]
+    '''
 
-def get_vip_list(vip_group=''):
-    groups=vip_group.split(',')
-    return  map(lambda x:{ 'ip': x.split(':')[0],'port':x.split(':')[1] },groups)
+    :param cluster:
+    :return: [{'id':'test','name':'test'},{'id':'hello','name':'hello'}]
+    '''
+    import requests
+    return requests.get('http://10.3.143.21:443/index/get_business').json()
+
+def get_vip_by_bu(business=''):
+    '''
+    :param business:
+    :return: ['ip1','ip2']
+    '''
+    '''
+    :param business:
+    :return:
+    '''
+    import requests
+    return requests.post('http://10.3.143.21:443/index/get_vip_by_bu',{'business':business}).json()
+
+
+def get_realip_by_bu(business=''):
+    '''
+    :param business:
+    :return: ['ip1','ip2']
+    '''
+    import requests
+    return requests.post('http://10.3.143.21:443/index/get_realip_by_bu',{'business':business}).json()
+
 
         
 class TemplateRendering():
@@ -318,7 +342,7 @@ class Login(BaseHandler):
             def login(name,password):
                 import urllib2
                 import urllib
-                ret=urllib2.urlopen('http://zaccount.meizu.com/index.php/open/login',urllib.urlencode( {'user_name':name,'password':password})).read()
+                ret=urllib2.urlopen('http://10.3.143.21:443/index/login',urllib.urlencode( {'user_name':name,'password':password})).read()
                 if ret=='1':
                     return True
                 else:
@@ -687,6 +711,25 @@ class lvsManagerDeployOnline(BaseHandler):
         handler.UpdateLvsManagerConfigVipInstanceToOnline(id)
         self.write('ok')
 
+
+class lvsManagerGetRealIp(BaseHandler):
+    def post(self):
+        '''
+        Remove vip_instance
+        '''
+        import json
+        print(self.request.body)
+
+        ip=self.get_argument('ip')
+        business=self.get_argument('business')
+        #ips=['123','456','789']
+        #ips=filter(lambda x:ip in x,ips)
+
+        ips=get_realip_by_bu(business)
+        # ips=filter(lambda x:ip in x,ips)
+
+        self.write(json.dumps(ips))
+
 class lvsManagerGetVip(BaseHandler):
     def post(self):
         '''
@@ -696,8 +739,12 @@ class lvsManagerGetVip(BaseHandler):
         print(self.request.body)
 
         ip=self.get_argument('ip')
-        ips=['123','456','789']
-        ips=filter(lambda x:ip in x,ips)
+        business=self.get_argument('business')
+        #ips=['123','456','789']
+        #ips=filter(lambda x:ip in x,ips)
+
+        ips=get_vip_by_bu(business)
+        # ips=filter(lambda x:ip in x,ips)
 
         self.write(json.dumps(ips))
                 

@@ -212,7 +212,7 @@
 <div id="dialog-form" title="新增RS配置">
   <form>
   <fieldset>
-    <div class="control-group">
+     <div class="control-group" style="display: none;">
       <label class="control-label" for="manager_ip">管理IP</label>
       <div class="controls">
         <td><input id="manager_ip" type="text" name='manager_ip'><span class="help-block">用于登录管理的IP</span></td>
@@ -287,6 +287,52 @@
 
 
 
+    function add_autocomplete(){
+    $('input[name=key]').autocomplete({
+        source:function(query,process){
+            var matchCount = this.options.items;//返回结果集最大数量
+            $.post("/lvsmanager_get_vip/",{"ip":query,"matchCount":matchCount,'business':$('#descript').val()},function(respData){
+               respData= $.parseJSON(respData);
+                return process(respData);
+            });
+        },
+        formatItem:function(item){
+            return item;
+            //return item["regionName"]+"("+item["regionNameEn"]+"，"+item["regionShortnameEn"]+") - "+item["regionCode"];
+        },
+        setValue:function(item){
+
+            return {'data-value':item,'real-value':item};
+        }
+    });
+}
+
+function add_autocomplete2(){
+    $('#server_ip').autocomplete({
+        source:function(query,process){
+            var matchCount = this.options.items;//返回结果集最大数量
+            $.post("/lvsmanager_get_vip/",{"ip":query,"matchCount":matchCount,'business':$('#descript').val()},function(respData){
+               respData= $.parseJSON(respData);
+                return process(respData);
+            });
+        },
+        formatItem:function(item){
+            return item;
+            //return item["regionName"]+"("+item["regionNameEn"]+"，"+item["regionShortnameEn"]+") - "+item["regionCode"];
+        },
+        setValue:function(item){
+
+            return {'data-value':item,'real-value':item};
+        }
+    });
+}
+
+
+add_autocomplete()
+add_autocomplete2()
+
+
+$('#descript').select2({ placeholder: "请选择相应业务"})
     function buildVip(container) {
         var p = [];
         $(container).find('div').each(function() {
@@ -335,7 +381,7 @@
         "保存": function() {
         	monitor_new = new Object ;
         	monitor = new Object ;
-        	monitor_new['manager_ip'] = $("#manager_ip").val() ;
+        	monitor_new['manager_ip'] = $("#server_ip").val();//$("#manager_ip").val() ;
         	monitor_new['server_ip'] = $("#server_ip").val() ;
         	monitor_new['port'] = $("#rs_port").val() ;
         	monitor_new['weight'] = $("#weight").val() ;
@@ -369,6 +415,7 @@
                 $('.del').click(function() {
                         $(this).parent().remove();
                 })//end click;
+         add_autocomplete()
         });//end click;
 
             $('.del').click(function() {
