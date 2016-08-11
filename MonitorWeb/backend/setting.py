@@ -15,6 +15,7 @@ define("publishdir", default=os.path.join(cur_dir,"lvspublish"), help="lvspublis
 define("ksso_url", default="https://sso.xxx.xxx/",help="ksso url")
 define("lvs_url", default="http://lvs.xxx.xxx/",help="lvs_url")
 define("cookies_expires", default=1,help="cookies_expires_days")
+define("api_third_url", default="http://127.0.0.1:443/index/",help="lvs_url")
 
 config = yaml.load(open(options.config))
 #agent列表

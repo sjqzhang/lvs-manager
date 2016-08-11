@@ -130,7 +130,10 @@ class saltstackwork():
 
 
 
-API_URL="http://10.3.143.21:443/index/"
+
+API_URL=options.api_third_url
+
+
 
 def get_business(cluster=''):
     '''
