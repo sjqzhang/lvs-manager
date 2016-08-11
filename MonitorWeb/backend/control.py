@@ -345,16 +345,27 @@ class Login(BaseHandler):
         if self.request.body!=None and self.request.body.find('username')!=-1 and self.request.body.find('password')!=-1:
             import urllib
             import urlparse
-            import simpleldap
-            # print urlparse.parse_qs(self.request.body)
+            # #######################   ldap ########################
+            # import simpleldap
+            # # print urlparse.parse_qs(self.request.body)
+            # d={}
+            # for item in self.request.body.split('&'):
+            #     kv=item.split('=')
+            #     d[kv[0]]=urllib.unquote( kv[1])
+            #
+            # import ldap
+            # SERVER = "ldap://ldap.server.com"
+            # BASE = u"dc=server,dc=com"
+            #
+            #  #######################   end ldap ########################
+
+
             d={}
             for item in self.request.body.split('&'):
                 kv=item.split('=')
                 d[kv[0]]=urllib.unquote( kv[1])
 
-            import ldap
-            SERVER = "ldap://ldap.server.com"
-            BASE = u"dc=server,dc=com"
+
             # def login(name,password):
             #     con = ldap.initialize(SERVER)
             #     try:
