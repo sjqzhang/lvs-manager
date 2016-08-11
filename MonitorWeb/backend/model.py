@@ -300,6 +300,11 @@ class Model():
     def InsertAccount(self,user_data):
         result = self.db['LvsAccount'].insert(user_data)
         return True
+
+    def UpdateAccountPrivilege  (self,user,is_manager=False,is_super_manager=False):
+        # {"status":1, "username":user,"is_manager":False,"is_super_manager":False}
+        result = self.db['LvsAccount'].update({"username":user},{"$set":{"is_manager":is_manager,"is_super_manager":is_super_manager}})
+        return True
     
     def updateAccountLogintime(self,user,time):
         self.db['LvsAccount'].update({"username":user},{"$set":{"login_time":time}})

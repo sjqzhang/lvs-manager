@@ -22,7 +22,7 @@ import socket
 from bytesformat import bytes2human
 import codecs
 from bson.objectid import ObjectId
-import urllib2
+import requests
 
 
 def search_cluster(id): 
@@ -138,7 +138,6 @@ def get_business(cluster=''):
     :param cluster:
     :return: [{'id':'test','name':'test'},{'id':'hello','name':'hello'}]
     '''
-    import requests
     return requests.get(API_URL+'get_business').json()
 
 def get_vip_by_bu(business=''):
@@ -150,7 +149,6 @@ def get_vip_by_bu(business=''):
     :param business:
     :return:
     '''
-    import requests
     return requests.post(API_URL+'get_vip_by_bu',{'business':business}).json()
 
 
@@ -159,18 +157,38 @@ def get_realip_by_bu(business=''):
     :param business:
     :return: ['ip1','ip2']
     '''
-    import requests
     return requests.post(API_URL+'get_realip_by_bu',{'business':business}).json()
 
 
 def login(name,password):
-    import urllib2
-    import urllib
-    ret=urllib2.urlopen(API_URL+'login',urllib.urlencode( {'user_name':name,'password':password})).read()
-    if ret=='1':
-        return True
-    else:
-        return  False
+    '''
+
+    :param name:
+    :param password:
+    :return:  {"status":1, "username":user,"is_manager":False,"is_super_manager":False}
+    '''
+    try:
+        ret=requests.post(API_URL+'login', {'user_name':name,'password':password}).json()
+        if ret['status']=='1':
+            user= ret['username']
+            if user:
+                handler = Model('Account')
+                _find_user_result = handler.getAccountOne(user)
+            if  _find_user_result:
+                time_now = timestamptodate(time.time())
+                handler.UpdateAccountPrivilege(user,ret['is_manager'],ret['is_super_manager'])
+                handler.updateAccountLogintime(user,time_now)
+            else:
+                time_now = timestamptodate(time.time())
+                user_data = {"username":user,"is_manager":ret['is_manager'],"is_super_manager":ret['is_super_manager'],"login_time":time_now,"register_time":time_now}
+                handler.InsertAccount(user_data)
+            return 1
+        else:
+            return 0
+    except Exception as er:
+
+        return 0
+
         
 class TemplateRendering():
 
