@@ -399,7 +399,7 @@ function add_autocomplete2(){
     $('#server_ip').autocomplete({
         source:function(query,process){
             var matchCount = this.options.items;//返回结果集最大数量
-            $.post("/lvsmanager_get_vip/",{"ip":query,"matchCount":matchCount,'business':$('#descript').val()},function(respData){
+            $.post("/lvsmanager_get_real_ip/",{"ip":query,"matchCount":matchCount,'business':$('#descript').val()},function(respData){
                respData= $.parseJSON(respData);
                 return process(respData);
             });
