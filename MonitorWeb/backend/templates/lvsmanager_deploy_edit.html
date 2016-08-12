@@ -22,12 +22,12 @@
 
               <div id="tpl_param" style="display:none;">
               <div style="border: 1px dashed #ccc;">
-                  <span><input type="text"
+                  <span><input type="text" autocomplete="off"
                       onblur="if(this.value==''){this.value='VIP'; this.style.color='#ccc';};"
                       onfocus="if(this.value=='VIP'){this.value='';} this.style.color='#666';"
                       value="VIP" style="width: 150px;" name="key"
                       style="color: rgb(204, 204, 204);"></span>:<span><input
-                      type="text"
+                      type="text" autocomplete="off"
                       onblur="if(this.value==''){this.value='PORT'; this.style.color='#ccc';}"
                       onfocus="if(this.value=='PORT'){this.value=''} this.style.color='#666';"
                       value="PORT" style="width: 115px;" title="{desc}" name="val"></span> <span
@@ -86,7 +86,7 @@
                     {% for vip in vipgrouplist %}
                     <div style="border: 1px dashed #ccc;">
 
-                                <span><input class="vip_width"   type="text" onblur="if(this.value==''){this.value='VIP'; this.style.color='#ccc';};" onfocus="if(this.value=='VIP'){this.value='';} this.style.color='#666';" value="{{ vip.vip }}" style="width: 150px;" name="key"></span>:<span><input type="text" onblur="if(this.value==''){this.value='PORT'; this.style.color='#ccc';}" onfocus="if(this.value=='PORT'){this.value=''} this.style.color='#666';" value="{{ vip.port }}" style="width: 115px;" name="val"></span> <span class="del">删除</span>
+                                <span><input class="vip_width"   autocomplete="off"  type="text" onblur="if(this.value==''){this.value='VIP'; this.style.color='#ccc';};" onfocus="if(this.value=='VIP'){this.value='';} this.style.color='#666';" value="{{ vip.vip }}" style="width: 150px;" name="key"></span>:<span><input type="text" autocomplete="off" onblur="if(this.value==''){this.value='PORT'; this.style.color='#ccc';}" onfocus="if(this.value=='PORT'){this.value=''} this.style.color='#666';" value="{{ vip.port }}" style="width: 115px;" name="val"></span> <span class="del">删除</span>
 
                     </div>
                      {% endfor %}
@@ -233,7 +233,7 @@
 	<div class="control-group">
       <label class="control-label" for="server_ip">服务IP</label>
       <div class="controls">
-        <td><input id="server_ip" type="text" name='server_ip'><span class="help-block">用于RS提供服务的IP</span></td>
+        <td><input id="server_ip" autocomplete="off" type="text" name='server_ip'><span class="help-block">用于RS提供服务的IP</span></td>
       </div>
 	</div>
 	<div class="control-group">
