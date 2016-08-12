@@ -761,7 +761,10 @@ class lvsManagerGetRealIp(BaseHandler):
         #ips=filter(lambda x:ip in x,ips)
 
         ips=get_realip_by_bu(business)
-        # ips=filter(lambda x:ip in x,ips)
+        ips2=filter(lambda x:ip in x,ips)
+        if len(ips2)>0:
+            ips=ips2
+
 
         self.write(json.dumps(ips))
 
@@ -779,7 +782,9 @@ class lvsManagerGetVip(BaseHandler):
         #ips=filter(lambda x:ip in x,ips)
 
         ips=get_vip_by_bu(business)
-        # ips=filter(lambda x:ip in x,ips)
+        ips2=filter(lambda x:ip in x,ips)
+        if len(ips2)>0:
+            ips=ips2
 
         self.write(json.dumps(ips))
                 
