@@ -4,3 +4,4 @@ PyYAML
 tornado
 requests
 datadiff
+statsd

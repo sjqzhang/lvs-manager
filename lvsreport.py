@@ -212,12 +212,11 @@ class lvsreport():
         
     def run(self):
         import time
-        while True:
-            for cluster in self.cluster_dict:
-                dict = self.cluster_report(cluster)
-                #存入数据库LvsReport
-                self.insert_result_lvsreport(dict)
-                time.sleep(settings['interval'])
+        for cluster in self.cluster_dict:
+            dict = self.cluster_report(cluster)
+            #存入数据库LvsReport
+            self.insert_result_lvsreport(dict)
+
 
 if __name__ == "__main__":
     dt = get_yesterday()

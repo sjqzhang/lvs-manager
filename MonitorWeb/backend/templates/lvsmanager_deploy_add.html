@@ -43,7 +43,7 @@
 		      <div class="controls">
 		        <!--<td><input id="descript" class="lvs_manager_deploy_add_vip_input" type="text" name='descript' placeholder="业务名"></td>-->
 
-                  <select class="chosen-select" id="descript" name="descript" data-placeholder="Choose a State...">
+                  <select class="chosen-select lvs_manager_deploy_add_vip_input" id="descript" name="descript" data-placeholder="Choose a State...">
                   {% for bu in business %}
 
 				      <option value="{{ bu.id }}">{{ bu.name }}</option>
@@ -74,7 +74,7 @@
 		        <!--<td><input style="width: 310px;" id="vip_group" class="lvs_manager_deploy_add_vip_input" type="text" name='vip' placeholder="VIP地址"><span class="help-block">VIP组列表,以逗号分割.例如:1.1.1.1:80,2.2.2.2:80</span></td>-->
 		                        <div class="right" id="left_part_param" style="width:350px;">
 
-                    <div style="border: 1px dashed #ccc;">
+
 
                             <div style="border: 1px dashed #ccc;">
                                               <span><input type="text" autocomplete="off"
@@ -89,7 +89,7 @@
                                                   class="del">删除</span>
                                           </div>
 
-                    </div>
+
 
 
 
