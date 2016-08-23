@@ -190,7 +190,7 @@
 		<table class="table table-bordered table-hover">
 			  <thead>
 			    <tr>
-			      <th style="width: 10%">管理IP</th>
+			      <!--<th style="width: 10%">管理IP</th>-->
 			      <th style="width: 10%">服务IP</th>
 			      <th style="width: 10%">权重</th>
 			      <th style="width: 40%">port列表</th>
@@ -430,7 +430,8 @@ $('#descript').select2({ placeholder: "请选择相应业务"})
 		var html = ''
 		for (rs in rs_list) {
 			_rs = rs_list[rs]
-			html += '<tr><td>' + _rs['manager_ip'] + '</td><td>' + _rs['server_ip'] + '</td><td>' +
+//			html += '<tr><td>' + _rs['manager_ip'] + '</td><td>' + _rs['server_ip'] + '</td><td>' +
+			html += '<tr><td>' + _rs['server_ip'] + '</td><td>' +
 			_rs['weight'] + '</td><td>' + _rs['port'] + '</td><td>' +_rs['monitor']['type'] + '</td><td><a href="javascript:rs_remove(' + rs + ')" ><span class="fui-cross"></span>delete</a></td></tr>'
 		}
 		$("#rs_talbe_body").html(html)

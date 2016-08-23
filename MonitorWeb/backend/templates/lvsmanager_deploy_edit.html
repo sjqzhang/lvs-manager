@@ -192,7 +192,7 @@
 		<table class="table table-bordered table-hover">
 			  <thead>
 			    <tr>
-			      <th style="width: 10%">管理IP</th>
+			      <!--<th style="width: 10%">管理IP</th>-->
 			      <th style="width: 10%">服务IP</th>
 			      <th style="width: 10%">权重</th>
 			      <th style="width: 40%">port列表</th>
@@ -203,7 +203,7 @@
 			  <tbody id='rs_talbe_body'>
 			  {% for rs in vipinstance.rs %}
 			  <tr>
-			  	<td>{{ rs.manager_ip }}</td>
+			  	<!--<td>{{ rs.manager_ip }}</td>-->
 			  	<td>{{ rs.server_ip }}</td>
 			  	<td>{{ rs.weight }}</td>
 			  	<td>{{ rs.port }}</td>
@@ -298,9 +298,9 @@
   <form>
   <fieldset>
   	<input id="edit_record_rs_num" type="text" class="hide">
-    <div class="control-group" >
+    <div class="control-group"  style="display: none;">
       <label class="control-label" for="manager_ip">管理IP</label>
-      <div class="controls" style="display: none;">
+      <div class="controls">
         <td><input id="edit_manager_ip" type="text" name='manager_ip'><span class="help-block">用于登录管理的IP</span></td>
       </div>
 	</div>
@@ -594,7 +594,8 @@ function buildVip(container) {
 		var html = ''
 		for (rs in rs_list) {
 			_rs = rs_list[rs] ;
-			html += '<tr><td>' + _rs['manager_ip'] + '</td><td>' + _rs['server_ip'] + '</td><td>' +
+//			html += '<tr><td>' + _rs['manager_ip'] + '</td><td>' + _rs['server_ip'] + '</td><td>' +
+			html += '<tr><td>' + _rs['server_ip'] + '</td><td>' +
 			_rs['weight'] + '</td><td>' + _rs['port'] + '</td><td>' +_rs['monitor']['type'] + '</td><td><a href="javascript:rs_remove(' + rs + ')" ><span class="fui-cross"></span>delete</a><a style="position: relative ; left: 10px;" href="javascript:rs_edit(' + rs + ')" ><span class="fui-new"></span>edit</a></td></tr>'
 		}
 		$("#rs_talbe_body").html(html)
