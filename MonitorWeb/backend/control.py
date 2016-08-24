@@ -677,6 +677,37 @@ class lvsManagerDeploy(BaseHandler):
         vipinstanceinfo = handler.getLvsManagerConfigVipInstanceList(id)
         self.render2('lvsmanager_deploy.html',vipinstanceinfo=vipinstanceinfo,cluster=id)
 
+    def post(self):
+        id = self.get_argument("id",None)
+        keyword = self.get_argument("keyword","")
+        handler = Model('LvsManagerConfig')
+        vipinstanceinfo = handler.getLvsManagerConfigVipInstanceList(id)
+
+        def build(vipinstanceinfo):
+            for row in vipinstanceinfo:
+                for k,v in row.items():
+                    if k=='vip_group':
+                        rs=[]
+                        for r in v:
+                            rs.append(r['vip']+':'+r['port'])
+                        row[k]="<br>".join(rs)
+                    else:
+                        row[k]=str(v)
+            return  json.dumps(vipinstanceinfo)
+
+        result=[]
+        for row in vipinstanceinfo:
+            if str(row['descript']).find(keyword)!=-1:
+                result.append(row)
+        ret=""
+        if len(result)>0:
+            ret=build(result)
+        else:
+            ret=build(vipinstanceinfo)
+        self.write(ret)
+
+
+
 class lvsManagerDeployAdd(BaseHandler):
     @tornado.web.authenticated
     def get(self):

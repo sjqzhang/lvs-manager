@@ -15,6 +15,7 @@
 			<h4>集群:{{ cluster }}</h4>
 			<hr>
 			<a href="/lvsmanager_deploy_add/?id={{ cluster }}" class='btn btn-success' ><span class="fui-plus"></span>新增VIP实例</a>
+            <input type="text" value="" id="search" />
 		</div>
 		</br>
 		<div class='col-md-12'>
@@ -69,6 +70,66 @@
 			}
 		});
 	}
+    function heredoc(f) {
+      return f.toString().
+          replace(/^[^\/]+\/\*!?/, '').
+          replace(/\*\/[^\/]+$/, '');
+    }
+
+    function tpl_replace(tpl,data){
+//       debugger;
+        for(k in data){
+          //  console.log(k)
+//           tpl= tpl.replace(/\{+k+\}/ig,data[k])
+           tpl= tpl.replace(new RegExp('{'+k+'}', 'g'),data[k])
+        }
+        return tpl
+    }
+
+    $('#search').keyup(function(){
+        var keyword=$.trim($(this).val())
+
+
+        function tpl(){
+            /*
+				    <tr  style="{style}">
+				      <td >{vip_instance}</td>
+				      <td>{descript}</td>
+				      <td>{owners}</td>
+				      <td>{vip_group}</td>
+				      <td>{protocol}</td>
+				      <td>{lb_algo}</td>
+				      <td><a href="/lvsmanager_deploy_edit/?id={_id}" class='btn btn-sm btn-success'><span class="fui-new"></span>编辑</a> <a style="{dispalyup}" href="javascript:;" onClick="javascript:online_vip_instance('{_id}','{vip_instance}')" class='btn btn-sm btn-info'><span class="fui-play"></span>上线</a><a style="{dispalydown}" href="javascript:;" onClick="javascript:offline_vip_instance('{_id}','{vip_instance}')" class='btn btn-sm btn-warning'><span class="fui-pause"></span>下线</a><a href="javascript:;" onClick="javascript:remove_vip_instance('{_id}','{vip_instance}')" class='btn btn-sm btn-danger'><span class="fui-cross"></span>删除</a></td>
+				    </tr>
+             */
+        }
+
+        $.post('/lvsmanager_deploy/',{'id':'{{ cluster }}','keyword':keyword},function(data){
+           var rows= eval('('+data+')')
+            html=''
+            for(var i=0;i<rows.length;i++){
+
+                var row=rows[i]
+              if(row['status']=='offline') {
+                  row['style']='background-color: orange;'
+                  row['dispalydown']='display:none;'
+
+              } else {
+                    row['dispalyup']='display:none;'
+              }
+
+               html+=tpl_replace(heredoc(tpl),rows[i])
+
+
+            }
+
+             $('#publish_table_body').html(html)
+
+
+
+        })
+
+    })
 
 	function offline_vip_instance(vip_instance_id,vip_instance) {
 		bootbox.confirm("警告: 是否下线VIP实例:"+ vip_instance ,function(result) {
