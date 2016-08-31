@@ -346,21 +346,21 @@
 	      </div>
 		</div>
 		<div class="control-group">
-	      <label class="control-label" for="edit_connect_timeout">连接超时时间</label>
+	      <label class="control-label" for="connect_timeout">连接超时时间</label>
 	      <div class="controls">
-	        <td><input id="connect_timeout" class="edit_monitor_method_input" type="text" name='connect_timeout'></td>
+	        <td><input id="connect_timeout" value="3" class="edit_monitor_method_input" type="text" name='connect_timeout'></td>
 	      </div>
 		</div>
 		<div class="control-group">
 	      <label class="control-label" for="nb_get_retry">重连次数</label>
 	      <div class="controls">
-	        <td><input id="nb_get_retry" class="edit_monitor_method_input" type="text" name='nb_get_retry'></td>
+	        <td><input id="nb_get_retry" value="3" class="edit_monitor_method_input" type="text" name='nb_get_retry'></td>
 	      </div>
 		</div>
 		<div class="control-group">
 	      <label class="control-label" for="delay_before_retry">重连间隔时间</label>
 	      <div class="controls">
-	        <td><input id="delay_before_retry" class="edit_monitor_method_input" type="text" name='delay_before_retry'></td>
+	        <td><input id="delay_before_retry" value="10" class="edit_monitor_method_input" type="text" name='delay_before_retry'></td>
 	      </div>
 		</div>
 	</div>
@@ -512,6 +512,9 @@ function buildVip(container) {
 			} ;
 			_html = format_monitor_method_edit_input(inputlist) ;
 			$("#edit_monitor_method").html(_html) ;
+
+        $('#connect_timeout,#nb_get_retry').val(3)
+        $('#delay_before_retry,#misc_timeout').val(10)
 		});
 
 
