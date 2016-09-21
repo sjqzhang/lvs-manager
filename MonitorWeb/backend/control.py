@@ -692,7 +692,10 @@ class lvsManagerDeploy(BaseHandler):
                             rs.append(r['vip']+':'+r['port'])
                         row[k]="<br>".join(rs)
                     else:
-                        row[k]=str(v)
+                        if isinstance(v,unicode):
+                            row[k]=str(v.encode('utf-8'))
+                        else:
+                            row[k]=str(v)
             return  json.dumps(vipinstanceinfo)
 
         result=[]
