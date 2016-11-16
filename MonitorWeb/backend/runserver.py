@@ -19,6 +19,7 @@ from setting import config ,agentlist
 #import api class
 import api
 import control
+import webapi
 # Have one global connection to the blog DB across all handlers
 #db = motor.MotorClient(host=options.mongodb,port=options.mongodb_port).open_sync()[options.db]
 cur_dir = os.path.dirname(os.path.abspath(__file__))
@@ -86,6 +87,41 @@ class Application(tornado.web.Application):
             (r"/lvsmanager_keepalived_start_or_stop/", control.lvsManagerKeepalivedStartOrStop),
             (r"/lvsmanager_keepalived_ipvsadm/", control.lvsManagerKeepalivedIpvsadm),
             (r"/lvsmanager_search/", control.lvsManagerSearch),
+	    
+	    #webapi
+	    (r"/webapi/", webapi.HomeHandler),
+            (r"/webapi/login/", webapi.Login),
+            (r"/webapi/loginout", webapi.LoginOut),
+            (r"/webapi/charts/", webapi.ChartsHandler),
+            (r"/webapi/status/", webapi.Status),
+            (r"/webapi/cluster_status/", webapi.ClusterStatus),
+            (r"/webapi/lb_status/", webapi.LbStatus),
+            (r"/webapi/lb_status_table", webapi.LbStatusTable),
+            (r"/webapi/lb_vip_status_table", webapi.LbStatusVipTable),
+            (r"/webapi/lb_status_diff/", webapi.LbStatusDiff),
+            (r"/webapi/lb_status_diff_talbe", webapi.LbDiffTable),
+            (r"/webapi/lb_status_diff_agent_table", webapi.lbDiffAgentTable),
+            (r"/webapi/lb_status_publish/", webapi.Publish),
+            (r"/webapi/lb_status_publish_networktest", webapi.PublishNetworkTest),
+            (r"/webapi/lb_status_publish_infoyaml", webapi.PublishInfoYaml),
+            (r"/webapi/lvsreport/", webapi.LvsReport),
+            (r"/webapi/lvsalert/", webapi.LvsAlert),
+            (r"/lvsmanager/", webapi.lvsManager),
+            (r"/webapi/deploy/", webapi.lvsManagerDeploy),
+            (r"/webapi/deploy_add/", webapi.lvsManagerDeployAdd),
+            (r"/webapi/deploy_del/", webapi.lvsManagerDeployDel),
+            (r"/webapi/deploy_edit/", webapi.lvsManagerDeployEdit),
+            (r"/webapi/get_vip/", webapi.lvsManagerGetVip),
+            (r"/webapi/get_real_ip/", webapi.lvsManagerGetRealIp),
+            (r"/webapi/deploy_offline/", webapi.lvsManagerDeployOffline),
+            (r"/webapi/deploy_online/", webapi.lvsManagerDeployOnline),
+            (r"/webapi/deploy_get_rs_list/", webapi.lvsManagerDeployGetRsList),
+            (r"/webapi/publish/", webapi.lvsManagerPublish),
+            (r"/webapi/rollback/", webapi.lvsManagerRollback),
+            (r"/webapi/keepalived_reload/", webapi.lvsManagerKeepalivedReload),
+            (r"/webapi/keepalived_start_or_stop/", webapi.lvsManagerKeepalivedStartOrStop),
+            (r"/webapi/keepalived_ipvsadm/", webapi.lvsManagerKeepalivedIpvsadm),
+            (r"/webapi/search/", webapi.lvsManagerSearch),
         ]
 
         handlers = api_path + web_path
