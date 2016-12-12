@@ -238,6 +238,10 @@ class Model():
         self.db['LvsManagerConfig'].insert(data)
         return True
 
+    def insertLvsManagerConfigVipInstance2(self,data):
+        return self.db['LvsManagerConfig'].insert(data)
+
+
     def DelLvsManagerConfigVipInstance(self,id):
         self.db['LvsManagerConfig'].remove({"_id":ObjectId(id)})
         return True
@@ -246,10 +250,15 @@ class Model():
         result = self.db['LvsManagerConfig'].find_one({"_id":ObjectId(id)})
         return result
 
+    def getLvsManagerConfigVipInstanceInfoList(self,param):
+        result = self.db['LvsManagerConfig'].find(param)
+        return result
+
     def UpdateLvsManagerConfigVipInstance(self,id,update_data):
         self.db['LvsManagerConfig'].update({"_id":ObjectId(id)},update_data)
         return True
-    
+
+
     def getLvsManagerPublishLastRev(self,id):
         result = self.db['LvsManagerPublish'].find({"cluster_id":id}).sort("time",-1)
         if result.count() != 0 :

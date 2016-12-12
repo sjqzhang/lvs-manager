@@ -1105,3 +1105,232 @@ class lvsManagerSearch(BaseHandler):
             handler = Model('LvsManagerConfig')
             result = handler.getLvsManagerConfigSearchrs(rs)
             self.render2('lvsmanager_search.html',result = result)
+
+
+
+class lvsApi(BaseHandler):
+
+    def output(self,result):
+        self.render('json.html',data=result)
+
+    def md5(self,src):
+        import hashlib
+        m2 = hashlib.md5()
+        m2.update(src)
+        return m2.hexdigest()
+
+    def _is_valid_request(self,action=''):
+        return hasattr(self,action) and callable(getattr(self,action))
+
+    def status(self,result):
+        result['message']='ok'
+
+    def check(self):
+        result={'message':'ok','data':''}
+        key='@#$%&*FGHJK'
+        param_keys=['md5','action','timestamp','data']
+        action=str(self.get_argument('action',''))
+        md5=str(self.get_argument('md5',''))
+        timestamp=str(self.get_argument('timestamp',''))
+        if (action=='' or action.startswith('_')) or not self._is_valid_request(action):
+            result['message']='invalid action'
+            return result
+        # if md5!= self.md5( key+ timestamp):
+        #     result['message']='invalid requests'
+        return result
+
+    def getCluster(self,result):
+        '''
+        show lvsmanager.html
+        '''
+        config = yaml.load(open(options.config))
+        current_user = self.get_current_user()
+        handler = Model('LvsAccount')
+        user_info = handler.getAccountOne(current_user)
+        if user_info['is_super_manager']:
+            cluster_list = config['cluster']
+        elif user_info['is_manager']:
+            cluster_list = [ i for i in config['cluster'] if current_user in i['manager_user'] ]
+        else:
+            cluster_list = []
+            #self.write('Permission denied !!')
+
+        for cluster in cluster_list:
+            lb_list = []
+            for lb in cluster['agent']:
+                lb_info = search_agent(lb)
+                lb_list.append({"id":lb_info['id'],"ipadd":lb_info['ipadd']})
+            cluster['lb'] = lb_list
+        result['data']=lb_list
+    def getLvsList(self,result):
+        lvs=Model('LvsManagerConfig')
+        result['data']=lvs.getLvsManagerConfigVipInstanceList(self.get_argument('id'))
+
+
+    def _replace(self,tpl,data):
+        import re
+        _tpl=tpl
+        for i in re.findall(r'\{(\w+)\}',tpl):
+            if isinstance(data[i],unicode):
+                data[i]=unicode.encode(data[i],'utf-8','ignore')
+            _tpl=re.sub('\{'+i+'\}',str(data[i]),_tpl)
+        return _tpl
+
+
+    def editLvsManagerConfig(self,result):
+        #{'vip': ['127.0.0.1:80'], 'room': 'wx', 'business': 'flyme', 'rs': ['127.0.0.1:80'], 'line': 'ct', 'persistence_timeout': 60, 'module': 'flyme-80', 'id': '584e4fefc720b28dc4c1d14f'}
+        rs_tpl='''
+        {
+                    "manager_ip": "%s",
+                    "monitor": {
+                        "type": "TCP_CHECK",
+                        "connect_timeout": "3"
+                    },
+                    "weight": "100",
+                    "index": 0,
+                    "server_ip": "%s",
+                    "port": [
+                        "%s"
+                    ]
+        }
+       '''
+
+        vip_tpl='''
+        {
+            "vip": "%s",
+            "port": "%s"
+        }
+        '''
+
+        insert_tpl='''
+        {
+            "mailto": [
+                "web_ops@meizu.com"
+            ],
+            "owners": "韦浩",
+            "protocol": "TCP",
+            "quorum": "1",
+            "rs": [
+
+                {rss}
+            ],
+            "vip_instance": "{module}",
+            "descript": "{business}",
+            "persistence_timeout": "{persistence_timeout}",
+            "hysteresis": "0",
+            "delay_loop": "6",
+            "vip_group": [
+                {vips}
+            ],
+            "alpha": true,
+            "lb_kind": "FNAT",
+            "cluster_id": "{cluster_id}_lvs_cluster",
+            "omega": true,
+            "sync_proxy": true,
+            "lb_algo": "wrr"
+        }'''
+
+        data=json.loads(self.get_argument('data','{}'))
+        if len(data)==0:
+            result['message']='invalid data'
+            return
+        id=''
+        all_lines={'ct':'电信','cu':'联通','cm':'移动'}
+        all_rooms={'ns':'南沙','bj':'北京','wx':'无锡','hk':'香港'}
+        rs=data.get('rs',[])
+        room=data.get('room','')
+        line=data.get('line','')
+        vip=data.get('vip',[])
+        business=data.get('business',[])
+        module=data.get('module','')
+        persistence_timeout=data.get('persistence_timeout','600')
+        if not room in all_rooms:
+            result['message']='room must be in [%s]' % ','.join(all_rooms.keys())
+            return
+        if not line in all_lines:
+            result['message']='line must be in [%s]' % ','.join(all_lines.keys())
+            return
+        rs_list=[]
+        vip_list=[]
+        for r in rs:
+            tmp=str(r).split(':')
+            rs_list.append( rs_tpl % (tmp[0],tmp[0],tmp[1] ))
+        for v in vip:
+            tmp=str(v).split(':')
+            vip_list.append( vip_tpl % (tmp[0],tmp[1] ))
+
+        dict_data={'rss':','.join(rs_list),'vips':','.join(vip_list),'cluster_id':'%s_%s'% (room,line),
+                   'business':business,'module':module,'persistence_timeout':persistence_timeout}
+        if 'id' in data:
+            id=str(data['id'])
+        data= json.loads(self._replace(insert_tpl,dict_data))
+
+        lvs=Model('LvsManagerConfig')
+        if id=='':
+            id=lvs.insertLvsManagerConfigVipInstance2(data)
+        else:
+            try:
+                id=lvs.UpdateLvsManagerConfigVipInstance(id,data)
+            except Exception as er:
+                id=False
+        result['data']=id
+    def offline(self,result):
+        data=json.loads(self.get_argument('data','{}'))
+        id=data.get('id',{})
+        lvs = Model('LvsManagerConfig')
+        lvs.UpdateLvsManagerConfigVipInstanceToOffline(id)
+    def online(self,result):
+        data=json.loads(self.get_argument('data','{}'))
+        id=data.get('id',{})
+        lvs = Model('LvsManagerConfig')
+        lvs.UpdateLvsManagerConfigVipInstanceToOnline(id)
+
+
+    def getLvsManagerConfigVipInstanceInfoList(self,result):
+        #{'room': 'ns', 'business': 'aider', 'id': ['57bbf8bb91cbf67bed02c94a']}
+        '''
+        查询参数
+        param={
+          "id":[objectid list]
+          "room":[ns,bj,hk,wx],#机房
+          "buniess":[flyme,bbs,uc,sync.....] #业务
+          "module": "模块名-端口号",
+        }
+        :return:
+        '''
+        lvs=Model('LvsManagerConfig')
+        data=json.loads(self.get_argument('data','{}'))
+
+        ids=data.get('id',[])
+        room=data.get('room','')
+        business=data.get('business','')
+        module=data.get('module','')
+        cluster_id='%s' % (room)
+        _ids=[]
+        for i in ids:
+            _ids.append({"_id":ObjectId("%s"%i)})
+        param={"$and":[{"cluster_id": {"$regex":"^%s_.*lvs_cluster$"%cluster_id},"descript":"%s"%(business)}]}
+        cursor= lvs.getLvsManagerConfigVipInstanceInfoList(param)
+        param={"$or":_ids}
+        cursor2=lvs.getLvsManagerConfigVipInstanceInfoList(param)
+        retdata=(list(cursor)+list(cursor2))
+        result['data']=retdata
+
+
+    def get(self, *args, **kwargs):
+        result=self.check()
+        if result['message']!='ok':
+            self.output(result)
+            return
+        action=str(self.get_argument('action',''))
+        func=getattr(self,action)
+        func(result)
+        self.output(result)
+
+
+
+
+
+
+
+
