@@ -1316,6 +1316,15 @@ class lvsApi(BaseHandler):
         retdata=(list(cursor)+list(cursor2))
         result['data']=retdata
 
+    def post(self, *args, **kwargs):
+        result=self.check()
+        if result['message']!='ok':
+            self.output(result)
+            return
+        action=str(self.get_argument('action',''))
+        func=getattr(self,action)
+        func(result)
+        self.output(result)
 
     def get(self, *args, **kwargs):
         result=self.check()
