@@ -1130,8 +1130,11 @@ class lvsApi(BaseHandler):
         key=options.webapi_key
         param_keys=['md5','action','timestamp','data']
         action=str(self.get_argument('action',''))
-        md5=str(self.get_argument('md5',''))
-        timestamp=str(self.get_argument('timestamp',''))
+        data= json.loads(self.get_argument('data','{}'))
+        # timestamp=str(self.get_argument('timestamp',''))
+        # md5=str(self.get_argument('md5',''))
+        timestamp= data.get('timestamp','')
+        md5= data.get('md5','')
         if timestamp=='':
             result['message']="timestamp can't be empty"
         if (action=='' or action.startswith('_')) or not self._is_valid_request(action):
