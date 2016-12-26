@@ -1319,12 +1319,14 @@ class lvsApi(BaseHandler):
         param={"$and":[{"cluster_id": {"$regex":"^%s_.*lvs_cluster$"%cluster_id},"descript":"%s"%(business)}]}
         cursor= lvs.getLvsManagerConfigVipInstanceInfoList(param)
         retdata=[]
+        cursor2=None
         if len(_ids)>0:
             param={"$or":_ids}
             cursor2=lvs.getLvsManagerConfigVipInstanceInfoList(param)
-        if cursor2.count()>0 and cursor.count()>0:
+
+        if cursor2!=None and cursor2.count()>0 and cursor.count()>0:
             retdata=list(cursor) + list(cursor2)
-        elif cursor2.count()>0:
+        elif cursor2!=None and cursor2.count()>0:
                 retdata=list(cursor2)
         elif cursor.count()>0:
             retdata=list(cursor)
