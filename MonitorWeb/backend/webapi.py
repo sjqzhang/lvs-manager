@@ -1111,7 +1111,7 @@ class lvsManagerSearch(BaseHandler):
 class lvsApi(BaseHandler):
 
     def output(self,result):
-        self.render('json.html',data=result)
+        self.finish(result)
 
     def md5(self,src):
         import hashlib
@@ -1127,16 +1127,18 @@ class lvsApi(BaseHandler):
 
     def check(self):
         result={'message':'ok','data':''}
-        key='@#$%&*FGHJK'
+        key=options.webapi_key
         param_keys=['md5','action','timestamp','data']
         action=str(self.get_argument('action',''))
         md5=str(self.get_argument('md5',''))
         timestamp=str(self.get_argument('timestamp',''))
+        if timestamp=='':
+            result['message']="timestamp can't be empty"
         if (action=='' or action.startswith('_')) or not self._is_valid_request(action):
             result['message']='invalid action'
             return result
-        # if md5!= self.md5( key+ timestamp):
-        #     result['message']='invalid requests'
+        if md5!= self.md5( key+ timestamp):
+            result['message']='invalid requests'
         return result
 
     def getCluster(self,result):
@@ -1273,17 +1275,19 @@ class lvsApi(BaseHandler):
                 id=lvs.UpdateLvsManagerConfigVipInstance(id,data)
             except Exception as er:
                 id=False
-        result['data']=id
+        result['data']=str(id)
     def offline(self,result):
         data=json.loads(self.get_argument('data','{}'))
-        id=data.get('id',{})
+        ids=data.get('id',[])
         lvs = Model('LvsManagerConfig')
-        lvs.UpdateLvsManagerConfigVipInstanceToOffline(id)
+        for _id in ids:
+            lvs.UpdateLvsManagerConfigVipInstanceToOffline(_id)
     def online(self,result):
         data=json.loads(self.get_argument('data','{}'))
-        id=data.get('id',{})
+        ids=data.get('id',[])
         lvs = Model('LvsManagerConfig')
-        lvs.UpdateLvsManagerConfigVipInstanceToOnline(id)
+        for _id in ids:
+            lvs.UpdateLvsManagerConfigVipInstanceToOnline(_id)
 
 
     def getLvsManagerConfigVipInstanceInfoList(self,result):
@@ -1311,9 +1315,18 @@ class lvsApi(BaseHandler):
             _ids.append({"_id":ObjectId("%s"%i)})
         param={"$and":[{"cluster_id": {"$regex":"^%s_.*lvs_cluster$"%cluster_id},"descript":"%s"%(business)}]}
         cursor= lvs.getLvsManagerConfigVipInstanceInfoList(param)
-        param={"$or":_ids}
-        cursor2=lvs.getLvsManagerConfigVipInstanceInfoList(param)
-        retdata=(list(cursor)+list(cursor2))
+        retdata=[]
+        if len(_ids)>0:
+            param={"$or":_ids}
+            cursor2=lvs.getLvsManagerConfigVipInstanceInfoList(param)
+        if cursor2.count()>0 and cursor.count()>0:
+            retdata=list(cursor) + list(cursor2)
+        elif cursor2.count()>0:
+                retdata=list(cursor2)
+        elif cursor.count()>0:
+            retdata=list(cursor)
+        for row in retdata:
+            row['_id']=str(row['_id'])
         result['data']=retdata
 
     def post(self, *args, **kwargs):
