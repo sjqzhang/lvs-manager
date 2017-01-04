@@ -1183,7 +1183,10 @@ class lvsApi(BaseHandler):
 
 
     def editLvsManagerConfig(self,result):
-        #{'vip': ['127.0.0.1:80'], 'room': 'wx', 'business': 'flyme', 'rs': ['127.0.0.1:80'], 'line': 'ct', 'persistence_timeout': 60, 'module': 'flyme-80', 'id': '584e4fefc720b28dc4c1d14f'}
+        config = yaml.load(open(options.config))
+        cluster_list = config['cluster']
+
+        #{'vip': ['127.0.0.1:80'], 'room': 'wx', 'business': 'flyme', 'rs': ['127.0.0.1:80'], 'line': 'ct', 'persistence_timeout': 60, 'module': 'flyme-80', 'id': '584e4fefc720b28dc4c1d14f','special':'0'}
         rs_tpl='''
         {
                     "manager_ip": "%s",
@@ -1229,7 +1232,7 @@ class lvsApi(BaseHandler):
             ],
             "alpha": true,
             "lb_kind": "FNAT",
-            "cluster_id": "{cluster_id}_lvs_cluster",
+            "cluster_id": "{cluster_id}",
             "omega": true,
             "sync_proxy": true,
             "lb_algo": "wrr"
@@ -1248,6 +1251,21 @@ class lvsApi(BaseHandler):
         vip=data.get('vip',[])
         business=data.get('business',[])
         module=data.get('module','')
+        special=int(data.get('special','0'))
+        if special:
+            cluster_id='%s_%s_lvs_cluster_%s'% (room,line,business)
+        else:
+            cluster_id='%s_%s_lvs_cluster'% (room,line)
+        cluster_flag=False
+        for cluster in cluster_list:
+            if str(cluster['id'])==str(cluster_id):
+                cluster_flag=True
+                break
+        if not cluster_flag:
+            result['message']='cluster %s not found,please contact manager!' % (cluster_id)
+            return
+
+
         persistence_timeout=data.get('persistence_timeout','600')
         if not room in all_rooms:
             result['message']='room must be in [%s]' % ','.join(all_rooms.keys())
@@ -1264,7 +1282,7 @@ class lvsApi(BaseHandler):
             tmp=str(v).split(':')
             vip_list.append( vip_tpl % (tmp[0],tmp[1] ))
 
-        dict_data={'rss':','.join(rs_list),'vips':','.join(vip_list),'cluster_id':'%s_%s'% (room,line),
+        dict_data={'rss':','.join(rs_list),'vips':','.join(vip_list),'cluster_id':cluster_id,
                    'business':business,'module':module,'persistence_timeout':persistence_timeout}
         if 'id' in data:
             id=str(data['id'])
@@ -1275,9 +1293,14 @@ class lvsApi(BaseHandler):
             id=lvs.insertLvsManagerConfigVipInstance2(data)
         else:
             try:
+                info= lvs.getLvsManagerConfigVipInstanceInfo(id)
+                if len(info)==0:
+                    result['message']='cluster %s not found ' % cluster_id
+                    return
                 id=lvs.UpdateLvsManagerConfigVipInstance(id,data)
             except Exception as er:
                 id=False
+                result['message']=str(er)
         result['data']=str(id)
     def offline(self,result):
         data=json.loads(self.get_argument('data','{}'))

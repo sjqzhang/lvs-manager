@@ -18,8 +18,8 @@ def md5(src):
     return m2.hexdigest()
 
 
-data = {'vip': ['127.0.0.1:80'],'line':'cm', 'room': 'ns', 'business': 'test_hello', 'rs': ['127.0.0.1:80'],
-        'persistence_timeout': 60, 'module': 'flyme-80', 'id': '58608a40c720b25a75b6304a',
+data = {'vip': ['127.0.0.1:80'],'line':'cm', 'room': 'ns', 'business': 'xxxxxxxxxtt', 'rs': ['127.0.0.1:80'],
+        'persistence_timeout': 60, 'module': 'flyme-80', 'id': '586cb123c720b28f89e8f94b','special':0,
         'timestamp':timestamp,'md5':md5(key+timestamp)}
 #增加
 print requests.post('http://127.0.0.1:8888/webapi/?action=editLvsManagerConfig', {'data':json.dumps(data)}).json()
